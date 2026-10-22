@@ -1,0 +1,1603 @@
+{
+  "info": {
+    "_postman_id": "0821d6a0-697b-47eb-9088-f2869f80a223",
+    "name": "University Course Management API — сценарии защиты",
+    "description": "Запросы по 15 сценариям из раздела 21 задания. Запускать по порядку (Run collection) — id созданных объектов сохраняются в переменные коллекции. Пункт 15 «Записи событий в логах» смотрится в консоли приложения и в файле UniversityApi/logs/app-ГГГГММДД.log.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01. Получение списка студентов",
+      "item": [
+        {
+          "name": "GET все студенты",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"Список не пустой\", function () { pm.expect(pm.response.json().result.length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET поиск студентов (search)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students?search=ova",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "ova"
+                }
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Создание нового студента",
+      "item": [
+        {
+          "name": "POST студент",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.collectionVariables.set(\"studentId\", pm.response.json().result.id);",
+                  "pm.test(\"Есть заголовок Location\", function () { pm.response.to.have.header(\"Location\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Alex\",\n  \"lastName\": \"Smith\",\n  \"email\": \"alex.smith.{{$timestamp}}@student.university.kz\",\n  \"birthDate\": \"2004-05-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Получение созданного студента по ID",
+      "item": [
+        {
+          "name": "GET студент по id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"Тот же id\", function () { pm.expect(pm.response.json().result.id).to.eql(Number(pm.collectionVariables.get(\"studentId\"))); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "{{studentId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Изменение данных студента",
+      "item": [
+        {
+          "name": "PUT студент",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"Фамилия изменена\", function () { pm.expect(pm.response.json().result.lastName).to.eql(\"Johnson\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "{{studentId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Alex\",\n  \"lastName\": \"Johnson\",\n  \"email\": \"alex.johnson.{{$timestamp}}@student.university.kz\",\n  \"birthDate\": \"2004-05-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Создание преподавателя",
+      "item": [
+        {
+          "name": "POST преподаватель",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.collectionVariables.set(\"teacherId\", pm.response.json().result.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/teachers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teachers"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Elena\",\n  \"lastName\": \"Petrova\",\n  \"email\": \"e.petrova.{{$timestamp}}@university.kz\",\n  \"department\": \"Software Engineering\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Создание курса и привязка преподавателя",
+      "item": [
+        {
+          "name": "POST курс с преподавателем",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.collectionVariables.set(\"courseId\", pm.response.json().result.id);",
+                  "pm.test(\"Курс привязан к преподавателю\", function () { pm.expect(pm.response.json().result.teacherFullName).to.eql(\"Elena Petrova\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mobile Development\",\n  \"description\": \"Cross-platform apps with React Native\",\n  \"credits\": 5,\n  \"teacherId\": {{teacherId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST курс с несуществующим преподавателем (правило 4)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = TEACHER_NOT_FOUND\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"TEACHER_NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ghost Course\",\n  \"credits\": 3,\n  \"teacherId\": 99999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Запись студента на курс",
+      "item": [
+        {
+          "name": "POST запись на курс",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.collectionVariables.set(\"enrollmentId\", pm.response.json().result.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": {{studentId}},\n  \"courseId\": {{courseId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. Попытка повторной записи на тот же курс",
+      "item": [
+        {
+          "name": "POST повторная запись (правило 3)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = STUDENT_ALREADY_ENROLLED\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"STUDENT_ALREADY_ENROLLED\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": {{studentId}},\n  \"courseId\": {{courseId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST запись на несуществующий курс (правило 1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = COURSE_NOT_FOUND\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"COURSE_NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": {{studentId}},\n  \"courseId\": 99999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST запись несуществующего студента (правило 2)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = STUDENT_NOT_FOUND\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"STUDENT_NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 99999,\n  \"courseId\": {{courseId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "09. Получение студента вместе с его курсами",
+      "item": [
+        {
+          "name": "PUT оценка по курсу",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"Оценка сохранена\", function () { pm.expect(pm.response.json().result.grade).to.eql(87.5); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{enrollmentId}}/grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "{{enrollmentId}}",
+                "grade"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grade\": 87.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET студент с курсами",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"У студента есть курс\", function () { pm.expect(pm.response.json().result.courses.length).to.eql(1); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{studentId}}/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "{{studentId}}",
+                "courses"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET студент с курсами (тестовые данные, id=1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/1/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "1",
+                "courses"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Фильтрация курсов",
+      "item": [
+        {
+          "name": "GET курсы 5-6 кредитов",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"Все курсы в диапазоне\", function () { pm.response.json().result.forEach(c => pm.expect(c.credits).to.be.within(5, 6)); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?minCredits=5&maxCredits=6",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "minCredits",
+                  "value": "5"
+                },
+                {
+                  "key": "maxCredits",
+                  "value": "6"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET курсы по преподавателю",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?teacherId={{teacherId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "teacherId",
+                  "value": "{{teacherId}}"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET курсы по названию",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?search=data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "data"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET курсы по кафедре",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?department=Mathematics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "department",
+                  "value": "Mathematics"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET фильтр min > max (ошибка валидации)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = VALIDATION_ERROR\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"VALIDATION_ERROR\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses?minCredits=7&maxCredits=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "minCredits",
+                  "value": "7"
+                },
+                {
+                  "key": "maxCredits",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET записи по студенту",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments?studentId={{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments"
+              ],
+              "query": [
+                {
+                  "key": "studentId",
+                  "value": "{{studentId}}"
+                }
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Удаление или изменение объекта",
+      "item": [
+        {
+          "name": "PUT курс (изменение)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mobile Development\",\n  \"description\": \"React Native and Expo\",\n  \"credits\": 6,\n  \"teacherId\": {{teacherId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE преподаватель с курсами (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = TEACHER_HAS_COURSES\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"TEACHER_HAS_COURSES\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/teachers/{{teacherId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teachers",
+                "{{teacherId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "DELETE запись на курс",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{enrollmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "{{enrollmentId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Получение несуществующего объекта",
+      "item": [
+        {
+          "name": "GET несуществующий студент",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = STUDENT_NOT_FOUND\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"STUDENT_NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "99999"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET удалённая запись",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = ENROLLMENT_NOT_FOUND\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"ENROLLMENT_NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/{{enrollmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "{{enrollmentId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "GET несуществующий endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = ENDPOINT_NOT_FOUND\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"ENDPOINT_NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/unknown",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "unknown"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Пример ошибки валидации",
+      "item": [
+        {
+          "name": "POST студент с ошибками",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = VALIDATION_ERROR\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"VALIDATION_ERROR\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"\",\n  \"lastName\": \"S\",\n  \"email\": \"not-an-email\",\n  \"birthDate\": \"2030-01-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST курс: кредиты вне диапазона",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = VALIDATION_ERROR\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"VALIDATION_ERROR\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Big Course\",\n  \"credits\": 25,\n  \"teacherId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT оценка 120 (вне 0-100)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = VALIDATION_ERROR\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"VALIDATION_ERROR\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/enrollments/1/grade",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "1",
+                "grade"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grade\": 120\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "14. HTTP Status Codes (409 и 500)",
+      "item": [
+        {
+          "name": "POST студент с занятым email (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = STUDENT_EMAIL_ALREADY_EXISTS\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"STUDENT_EMAIL_ALREADY_EXISTS\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Copy\",\n  \"lastName\": \"Student\",\n  \"email\": \"aruzhan.bekova@student.university.kz\",\n  \"birthDate\": \"2004-01-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET необработанная ошибка (500)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", function () { pm.response.to.have.status(500); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});",
+                  "pm.test(\"errorCode = INTERNAL_SERVER_ERROR\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"INTERNAL_SERVER_ERROR\"); });",
+                  "pm.test(\"Нет технических деталей\", function () { pm.expect(pm.response.text()).to.not.include(\"StackTrace\"); pm.expect(pm.response.text()).to.not.include(\"SELECT\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/diagnostics/error",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diagnostics",
+                "error"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "15. Очистка (удаление созданных объектов)",
+      "item": [
+        {
+          "name": "DELETE курс",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{courseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{courseId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "DELETE преподаватель",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/teachers/{{teacherId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teachers",
+                "{{teacherId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "DELETE студент",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Единый формат ReturnResult\", function () {",
+                  "    const j = pm.response.json();",
+                  "    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+                  "    pm.expect(j.statusCode).to.eql(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/{{studentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "{{studentId}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5096"
+    },
+    {
+      "key": "studentId",
+      "value": ""
+    },
+    {
+      "key": "teacherId",
+      "value": ""
+    },
+    {
+      "key": "courseId",
+      "value": ""
+    },
+    {
+      "key": "enrollmentId",
+      "value": ""
+    }
+  ]
+}
