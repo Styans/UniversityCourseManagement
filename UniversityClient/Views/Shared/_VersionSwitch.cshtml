@@ -1,0 +1,9 @@
+@model VersionSwitchViewModel
+<div class="segmented" role="group" aria-label="Версия API">
+    @foreach (var v in new[] { "v1", "v2" })
+    {
+        <a class="@(Model.Version == v ? "active" : null)"
+           asp-controller="Courses" asp-action="@Model.Action" asp-route-id="@Model.Id"
+           asp-route-version="@v" asp-route-search="@Model.Search">API @v</a>
+    }
+</div>

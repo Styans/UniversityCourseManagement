@@ -1,12 +1,22 @@
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UniversityApi.Auth;
 using UniversityApi.Common;
 using UniversityApi.DTO.Courses;
 using UniversityApi.Services.Interfaces;
 
-namespace UniversityApi.Controllers;
+namespace UniversityApi.Controllers.V1;
 
-/// <summary>Учебные курсы: CRUD и фильтрация.</summary>
-[Route("api/courses")]
+/// <summary>
+/// Учебные курсы, версия 1: CRUD и фильтрация. Контракт (CourseDto) не изменился с задания 1.
+/// Адреса: /api/v1/courses и прежний /api/courses (без версии = v1) — старые клиенты продолжают работать.
+/// Чтение — всем (в том числе анонимно), изменение — только Admin.
+/// </summary>
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/courses")]
+[Route("api/courses", Order = 1)] // прежний адрес; Order = 1 — ссылки (Location) строятся по /api/v1/...
+[Authorize(Policy = AppPolicies.AdminOnly)]
 public class CoursesController : ApiControllerBase
 {
     private readonly ICourseService _service;
@@ -24,6 +34,7 @@ public class CoursesController : ApiControllerBase
     /// GET /api/courses?search=data&amp;department=Computer
     /// </remarks>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(ReturnResult<IReadOnlyList<CourseDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ReturnResult<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAll([FromQuery] CourseFilterDto filter)
@@ -31,6 +42,7 @@ public class CoursesController : ApiControllerBase
 
     /// <summary>Получить курс по ID.</summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(ReturnResult<CourseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ReturnResult<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id)

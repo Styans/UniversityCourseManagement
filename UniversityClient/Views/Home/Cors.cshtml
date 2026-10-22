@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "CORS-демо";
+    var apiBase = (string)ViewData["ApiBaseUrl"]!;
+}
+<div class="page-head">
+    <div>
+        <h1>CORS-демо</h1>
+        <p class="muted">Запрос к API отправляет сам браузер (JavaScript <code>fetch</code>), а не сервер клиента.</p>
+    </div>
+</div>
+
+<div class="card">
+    <p>
+        Origin этой страницы: <code id="origin"></code><br />
+        Адрес API: <code>@apiBase</code>
+    </p>
+    <p class="muted small">
+        Браузер разрешит JavaScript прочитать ответ, только если этот origin указан в политике CORS
+        <code>UniversityClients</code> (API, <code>appsettings.json → Cors:AllowedOrigins</code>).
+        Откройте страницу с другого адреса (например, <code>http://127.0.0.1:5210/Home/Cors</code>) — запрос будет заблокирован.
+    </p>
+    <button class="btn" id="run" type="button">Запросить GET /api/v2/courses из браузера</button>
+    <pre class="output" id="output">—</pre>
+</div>
+
+@section Scripts {
+    <script>
+        const apiBase = @Json.Serialize(apiBase);
+        document.getElementById('origin').textContent = window.location.origin;
+        document.getElementById('run').addEventListener('click', async () => {
+            const out = document.getElementById('output');
+            out.textContent = 'Запрос…';
+            try {
+                const response = await fetch(apiBase + 'api/v2/courses', { headers: { 'Accept': 'application/json' } });
+                const body = await response.json();
+                const names = body.result.map(c => `• ${c.name} — ${c.teacher.fullName}, студентов: ${c.enrolledStudentsCount}`);
+                out.textContent = `✔ ${response.status} OK — CORS разрешил запрос\nAccess-Control-Allow-Origin: ${window.location.origin}\n\n${names.join('\n')}`;
+            } catch (e) {
+                out.textContent = `✖ Запрос заблокирован браузером (CORS) или API недоступен.\n${e}\n\nПодробности — в консоли браузера (F12).`;
+            }
+        });
+    </script>
+}

@@ -1,0 +1,2681 @@
+{
+	"info": {
+		"name": "University Course Management API — задание 2 (безопасность и версии)",
+		"description": "12 сценариев раздела 7 задания 2 + проверка блокировки. Запускать по порядку (Run collection). Токены и id сохраняются в переменные коллекции. Нужен запуск API в окружении Development (демо-пользователи и endpoint просроченного токена).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "00. Подготовка — вход демо-пользователей",
+			"description": "Пароль демо-пользователей — переменная коллекции demoPassword (Demo#2026, только Development).",
+			"item": [
+				{
+					"name": "POST login admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"const r = pm.response.json().result;",
+									"pm.collectionVariables.set('adminToken', r.accessToken);",
+									"pm.collectionVariables.set('adminUserId', r.user.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"admin\",\n  \"password\": \"{{demoPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login teacher.abenov",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"const r = pm.response.json().result;",
+									"pm.collectionVariables.set('teacherToken', r.accessToken);",
+									"pm.test('Связан с Teacher', () => pm.expect(r.user.teacherId).to.be.a('number'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"teacher.abenov\",\n  \"password\": \"{{demoPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login teacher.sadykova",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"const r = pm.response.json().result;",
+									"pm.collectionVariables.set('otherTeacherToken', r.accessToken);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"teacher.sadykova\",\n  \"password\": \"{{demoPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login student.bekova",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"const r = pm.response.json().result;",
+									"pm.collectionVariables.set('studentToken', r.accessToken);",
+									"pm.collectionVariables.set('studentId', r.user.studentId);",
+									"pm.collectionVariables.set('studentUserId', r.user.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"student.bekova\",\n  \"password\": \"{{demoPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login student.omarov",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"const r = pm.response.json().result;",
+									"pm.collectionVariables.set('otherStudentToken', r.accessToken);",
+									"pm.collectionVariables.set('otherStudentId', r.user.studentId);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"student.omarov\",\n  \"password\": \"{{demoPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "01. Анонимный пользователь запрашивает список курсов → 200",
+			"description": "",
+			"item": [
+				{
+					"name": "GET /api/v1/courses (без токена)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test('Список не пустой', () => pm.expect(pm.response.json().result.length).to.be.above(0));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				},
+				{
+					"name": "GET /api/courses — адрес из задания 1 (без токена)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"courses"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Анонимный пользователь пытается создать курс → 401",
+			"description": "",
+			"item": [
+				{
+					"name": "POST /api/v1/courses (без токена)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test(\"errorCode = UNAUTHORIZED\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"UNAUTHORIZED\"); });",
+									"pm.test('Заголовок WWW-Authenticate: Bearer', () => pm.expect(pm.response.headers.get('WWW-Authenticate')).to.include('Bearer'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Anonymous Course\",\n  \"credits\": 3,\n  \"teacherId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "DELETE /api/students/1 (без токена)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+									"pm.test(\"errorCode = UNAUTHORIZED\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"UNAUTHORIZED\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/students/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"students",
+								"1"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				},
+				{
+					"name": "POST /api/enrollments (без токена)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/enrollments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"enrollments"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": 1,\n  \"courseId\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Неправильный пароль → ошибка без JWT",
+			"description": "",
+			"item": [
+				{
+					"name": "POST login: неверный пароль",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test(\"errorCode = INVALID_CREDENTIALS\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"INVALID_CREDENTIALS\"); });",
+									"pm.test('JWT не выдан', () => { pm.expect(pm.response.json().result).to.eql(null); pm.expect(pm.response.text()).to.not.include('accessToken'); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"student.bekova\",\n  \"password\": \"WrongPassword1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login: несуществующий пользователь — тот же ответ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+									"pm.test(\"errorCode = INVALID_CREDENTIALS\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"INVALID_CREDENTIALS\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"no.such.user\",\n  \"password\": \"WrongPassword1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Правильные данные → JWT",
+			"description": "",
+			"item": [
+				{
+					"name": "POST login: student.bekova",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"const r = pm.response.json().result;",
+									"pm.test('Выдан JWT (3 части) типа Bearer', () => { pm.expect(r.accessToken.split('.').length).to.eql(3); pm.expect(r.tokenType).to.eql('Bearer'); });",
+									"const b64 = r.accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');",
+									"const payload = JSON.parse(decodeURIComponent(escape(atob(b64 + '='.repeat((4 - b64.length % 4) % 4)))));",
+									"console.log('JWT payload', payload);",
+									"pm.test('В токене id, имя и роли', () => { pm.expect(payload.sub).to.eql(r.user.id); pm.expect(payload.name).to.eql('student.bekova'); pm.expect(payload.role).to.eql('Student'); });",
+									"pm.test('Issuer, Audience, срок действия 15 минут', () => { pm.expect(payload.iss).to.be.a('string'); pm.expect(payload.aud).to.be.a('string'); pm.expect(payload.exp - payload.iat).to.eql(900); });",
+									"pm.test('В ответе нет пароля и хеша', () => { const t = pm.response.text(); pm.expect(t).to.not.include('Demo#2026'); pm.expect(t).to.not.include('passwordHash'); });",
+									"pm.collectionVariables.set('studentToken', r.accessToken);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"student.bekova\",\n  \"password\": \"{{demoPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "GET /api/auth/me с JWT → 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"const u = pm.response.json().result;",
+									"pm.test('Текущий пользователь и роль', () => { pm.expect(u.userName).to.eql('student.bekova'); pm.expect(u.roles).to.eql(['Student']); pm.expect(u.studentId).to.be.a('number'); });",
+									"pm.test('Нет конфиденциальных полей', () => ['passwordHash','securityStamp','concurrencyStamp'].forEach(k => pm.expect(u).to.not.have.property(k)));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "GET /api/auth/me без JWT → 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+									"pm.test(\"errorCode = UNAUTHORIZED\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"UNAUTHORIZED\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Просроченный / изменённый JWT → 401",
+			"description": "",
+			"item": [
+				{
+					"name": "POST /api/diagnostics/expired-token (получить просроченный токен, Development)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.collectionVariables.set('expiredToken', pm.response.json().result.accessToken);",
+									"pm.test('Срок действия уже истёк', () => pm.expect(Date.parse(pm.response.json().result.expiresAt)).to.be.below(Date.now()));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/diagnostics/expired-token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"diagnostics",
+								"expired-token"
+							]
+						},
+						"description": "Служебный endpoint (только Development): выдаёт копию вашего токена со сроком действия в прошлом, чтобы не ждать 15 минут.",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "GET /api/auth/me с просроченным JWT → 401 TOKEN_EXPIRED",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test(\"errorCode = TOKEN_EXPIRED\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"TOKEN_EXPIRED\"); });",
+									"pm.test('WWW-Authenticate: invalid_token', () => pm.expect(pm.response.headers.get('WWW-Authenticate')).to.include('invalid_token'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{expiredToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "GET /api/users с изменённым JWT (role=Admin) → 401 INVALID_TOKEN",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Берём настоящий токен студента и меняем в payload роль на Admin, не меняя подпись",
+									"const parts = pm.collectionVariables.get('studentToken').split('.');",
+									"const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');",
+									"const payload = JSON.parse(atob(b64 + '='.repeat((4 - b64.length % 4) % 4)));",
+									"payload.role = 'Admin';",
+									"const forged = btoa(JSON.stringify(payload)).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+									"pm.collectionVariables.set('forgedToken', parts[0] + '.' + forged + '.' + parts[2]);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+									"pm.test(\"errorCode = INVALID_TOKEN\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"INVALID_TOKEN\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{forgedToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "06. Student пытается удалить курс → 403",
+			"description": "В таблице сценариев для этого случая указан 401, но по требованию 2.5 аутентифицированный пользователь без прав получает 403. Без токена — 401 (второй запрос).",
+			"item": [
+				{
+					"name": "DELETE /api/v1/courses/1 под Student → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test(\"errorCode = FORBIDDEN\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"FORBIDDEN\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								"1"
+							]
+						},
+						"description": "Пользователь аутентифицирован (токен верный), но роли Admin нет — поэтому 403 Forbidden, а не 401 (требование 2.5).",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "DELETE /api/v1/courses/1 без токена → 401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								"1"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				},
+				{
+					"name": "GET /api/v1/courses/1 — курс не удалён",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								"1"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "07. Teacher изменяет оценку на собственном курсе → 200",
+			"description": "",
+			"item": [
+				{
+					"name": "GET /api/enrollments под teacher.abenov — только его курсы",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"const list = pm.response.json().result;",
+									"pm.test('Только записи курсов Абенова', () => list.forEach(e => pm.expect(['Web Services Development','Software Testing']).to.include(e.courseName)));",
+									"pm.collectionVariables.set('ownEnrollmentId', list[0].id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/enrollments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"enrollments"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "PUT /api/enrollments/{own}/grade → 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test('Оценка сохранена', () => pm.expect(Number(pm.response.json().result.grade)).to.eql(94));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/enrollments/{{ownEnrollmentId}}/grade",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"enrollments",
+								"{{ownEnrollmentId}}",
+								"grade"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"grade\": 94\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "08. Teacher изменяет оценку на чужом курсе → 403",
+			"description": "",
+			"item": [
+				{
+					"name": "GET /api/enrollments под teacher.sadykova (курс Databases)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.collectionVariables.set('foreignEnrollmentId', pm.response.json().result[0].id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/enrollments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"enrollments"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{otherTeacherToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "PUT /api/enrollments/{foreign}/grade под teacher.abenov → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test(\"errorCode = NOT_COURSE_TEACHER\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"NOT_COURSE_TEACHER\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/enrollments/{{foreignEnrollmentId}}/grade",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"enrollments",
+								"{{foreignEnrollmentId}}",
+								"grade"
+							]
+						},
+						"description": "Роль Teacher есть (политика GradeManagement пройдена), но курс принадлежит другому преподавателю — проверка по ресурсу возвращает 403.",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"grade\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "GET запись — оценка не изменилась",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test('Оценка не равна 10', () => pm.expect(Number(pm.response.json().result.grade)).to.not.eql(10));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/enrollments/{{foreignEnrollmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"enrollments",
+								"{{foreignEnrollmentId}}"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "09. Student запрашивает чужие оценки → 403",
+			"description": "",
+			"item": [
+				{
+					"name": "GET /api/enrollments?studentId={другой} под student.bekova → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test(\"errorCode = FORBIDDEN\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"FORBIDDEN\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/enrollments?studentId={{otherStudentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"enrollments"
+							],
+							"query": [
+								{
+									"key": "studentId",
+									"value": "{{otherStudentId}}"
+								}
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "GET /api/students/{другой}/courses под student.bekova → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); });",
+									"pm.test(\"errorCode = FORBIDDEN\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"FORBIDDEN\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/students/{{otherStudentId}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"students",
+								"{{otherStudentId}}",
+								"courses"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "GET /api/students/{свой}/courses → 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test('Свои оценки', () => pm.expect(pm.response.json().result.id).to.eql(Number(pm.collectionVariables.get('studentId'))));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/students/{{studentId}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"students",
+								"{{studentId}}",
+								"courses"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "GET /api/enrollments под student.bekova — только свои",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test('Все записи свои', () => pm.response.json().result.forEach(e => pm.expect(e.studentId).to.eql(Number(pm.collectionVariables.get('studentId')))));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/enrollments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"enrollments"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Admin назначает пользователю роль → успешно",
+			"description": "",
+			"item": [
+				{
+					"name": "POST /api/auth/register — новый пользователь",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"const u = pm.response.json().result;",
+									"pm.test('При регистрации — только роль Student', () => pm.expect(u.roles).to.eql(['Student']));",
+									"pm.collectionVariables.set('newUserId', u.id);",
+									"pm.collectionVariables.set('newUserName', u.userName);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"demo.user{{$timestamp}}\",\n  \"email\": \"demo.user{{$timestamp}}@student.university.kz\",\n  \"password\": \"Student#2026\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST /api/auth/register — то же имя → 409",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });",
+									"pm.test(\"errorCode = USERNAME_ALREADY_EXISTS\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"USERNAME_ALREADY_EXISTS\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"email\": \"other{{$timestamp}}@student.university.kz\",\n  \"password\": \"Student#2026\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST /api/auth/register — слабый пароль → 400",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+									"pm.test(\"errorCode = VALIDATION_ERROR\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"VALIDATION_ERROR\"); });",
+									"pm.test('Ошибки по полю password', () => pm.expect(pm.response.json().errors).to.have.property('password'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"weak{{$timestamp}}\",\n  \"email\": \"weak{{$timestamp}}@student.university.kz\",\n  \"password\": \"12345\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "GET /api/roles (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test('Admin, Student, Teacher', () => ['Admin','Student','Teacher'].forEach(r => pm.expect(pm.response.json().result).to.include(r)));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "POST /api/users/{id}/roles — Admin назначает Teacher → 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test('Роль назначена', () => pm.expect(pm.response.json().result.roles).to.include('Teacher'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{newUserId}}/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{newUserId}}",
+								"roles"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"Teacher\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST /api/teachers — Admin создаёт преподавателя для нового пользователя",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+									"pm.collectionVariables.set('newTeacherId', pm.response.json().result.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/teachers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"teachers"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Demo\",\n  \"lastName\": \"Teacher\",\n  \"email\": \"demo.teacher{{$timestamp}}@university.kz\",\n  \"department\": \"Software Engineering\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "PUT /api/users/{id}/profile — связать учётную запись с Teacher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test('Связан с Teacher', () => pm.expect(pm.response.json().result.teacherId).to.eql(Number(pm.collectionVariables.get('newTeacherId'))));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{newUserId}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{newUserId}}",
+								"profile"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": null,\n  \"teacherId\": \"{{newTeacherId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login нового пользователя — роль Teacher и teacher_id в JWT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"const t = pm.response.json().result.accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');",
+									"const payload = JSON.parse(atob(t + '='.repeat((4 - t.length % 4) % 4)));",
+									"pm.test('Новая роль попала в токен', () => pm.expect([].concat(payload.role)).to.include('Teacher'));",
+									"pm.test('teacher_id в токене', () => pm.expect(payload.teacher_id).to.eql(String(pm.collectionVariables.get('newTeacherId'))));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"password\": \"Student#2026\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "11. Student пытается назначить себе роль Admin → 403",
+			"description": "",
+			"item": [
+				{
+					"name": "POST /api/users/{свой id}/roles {Admin} под Student → 403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"pm.test(\"errorCode = FORBIDDEN\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"FORBIDDEN\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{studentUserId}}/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{studentUserId}}",
+								"roles"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"Admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST /api/auth/register с полем role=Admin — поле игнорируется",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+									"pm.test('Роль всё равно Student', () => pm.expect(pm.response.json().result.roles).to.eql(['Student']));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"sneaky{{$timestamp}}\",\n  \"email\": \"sneaky{{$timestamp}}@student.university.kz\",\n  \"password\": \"Student#2026\",\n  \"role\": \"Admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "GET /api/auth/me — роль не изменилась",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test('Только Student', () => pm.expect(pm.response.json().result.roles).to.eql(['Student']));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{studentToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "12. Клиент обращается к API v1 и v2 → обе версии корректны",
+			"description": "",
+			"item": [
+				{
+					"name": "GET /api/v1/courses/1 — контракт v1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"const c = pm.response.json().result;",
+									"pm.test('Поля v1 как в задании 1', () => { pm.expect(c).to.have.keys(['id','name','description','credits','teacherId','teacherFullName','createdAt']); });",
+									"pm.test('Заголовок api-supported-versions', () => pm.expect(pm.response.headers.get('api-supported-versions')).to.include('2.0'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses",
+								"1"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				},
+				{
+					"name": "GET /api/v2/courses/1 — расширенный контракт v2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test(\"Единый формат ReturnResult\", function () {",
+									"    const j = pm.response.json();",
+									"    [\"statusCode\",\"isSuccess\",\"result\",\"errorCode\",\"errorMessage\",\"traceId\"].forEach(k => pm.expect(j).to.have.property(k));",
+									"    pm.expect(j.statusCode).to.eql(pm.response.code);",
+									"});",
+									"const c = pm.response.json().result;",
+									"pm.test('Преподаватель — объект с кафедрой', () => { pm.expect(c.teacher).to.have.property('fullName'); pm.expect(c.teacher).to.have.property('department'); });",
+									"pm.test('Количество записанных студентов', () => pm.expect(c.enrolledStudentsCount).to.be.a('number'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/courses/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"courses",
+								"1"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				},
+				{
+					"name": "GET /api/v1/courses — список v1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"courses"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				},
+				{
+					"name": "GET /api/v2/courses?minCredits=5 — фильтры работают и в v2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+									"pm.test('Только 5+ кредитов', () => pm.response.json().result.forEach(c => pm.expect(c.credits).to.be.at.least(5)));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v2/courses?minCredits=5",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"courses"
+							],
+							"query": [
+								{
+									"key": "minCredits",
+									"value": "5"
+								}
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				},
+				{
+					"name": "GET /api/v3/courses — неподдерживаемая версия",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+									"pm.test(\"errorCode = UNSUPPORTED_API_VERSION\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"UNSUPPORTED_API_VERSION\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v3/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v3",
+								"courses"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "13. Дополнительно: блокировка после неудачных попыток",
+			"description": "Блокировка проверяется на пользователе, созданном в сценарии 10, чтобы не блокировать демо-аккаунты.",
+			"item": [
+				{
+					"name": "POST login: неверный пароль #1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"password\": \"WrongPassword1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login: неверный пароль #2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"password\": \"WrongPassword1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login: неверный пароль #3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"password\": \"WrongPassword1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login: неверный пароль #4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"password\": \"WrongPassword1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login: неверный пароль #5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"password\": \"WrongPassword1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST login: верный пароль, но учётная запись заблокирована → ACCOUNT_LOCKED",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });",
+									"pm.test(\"errorCode = ACCOUNT_LOCKED\", function () { pm.expect(pm.response.json().errorCode).to.eql(\"ACCOUNT_LOCKED\"); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"password\": \"Student#2026\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "POST /api/users/{id}/unlock (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{newUserId}}/unlock",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{newUserId}}",
+								"unlock"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "POST login после разблокировки → 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "",
+						"auth": {
+							"type": "noauth"
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userName\": \"{{newUserName}}\",\n  \"password\": \"Student#2026\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5096"
+		},
+		{
+			"key": "demoPassword",
+			"value": "Demo#2026"
+		},
+		{
+			"key": "adminToken",
+			"value": ""
+		},
+		{
+			"key": "teacherToken",
+			"value": ""
+		},
+		{
+			"key": "otherTeacherToken",
+			"value": ""
+		},
+		{
+			"key": "studentToken",
+			"value": ""
+		},
+		{
+			"key": "otherStudentToken",
+			"value": ""
+		},
+		{
+			"key": "expiredToken",
+			"value": ""
+		},
+		{
+			"key": "forgedToken",
+			"value": ""
+		},
+		{
+			"key": "studentId",
+			"value": ""
+		},
+		{
+			"key": "otherStudentId",
+			"value": ""
+		},
+		{
+			"key": "studentUserId",
+			"value": ""
+		},
+		{
+			"key": "adminUserId",
+			"value": ""
+		},
+		{
+			"key": "ownEnrollmentId",
+			"value": ""
+		},
+		{
+			"key": "foreignEnrollmentId",
+			"value": ""
+		},
+		{
+			"key": "newUserId",
+			"value": ""
+		},
+		{
+			"key": "newUserName",
+			"value": ""
+		},
+		{
+			"key": "newTeacherId",
+			"value": ""
+		}
+	]
+}

@@ -54,6 +54,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITeacherService, TeacherService>();
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IEnrollmentService, EnrollmentService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<UserDtoFactory>();
 
         // AutoMapper: конфигурация маппинга строится один раз (Singleton внутри AddAutoMapper),
         // IMapper выдаётся из контейнера. Лицензионный ключ необязателен для учебного проекта.

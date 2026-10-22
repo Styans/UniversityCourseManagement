@@ -4,7 +4,8 @@ namespace UniversityApi.Repositories.Interfaces;
 
 public interface IEnrollmentRepository : IRepository<Enrollment>
 {
-    Task<IReadOnlyList<Enrollment>> GetFilteredAsync(int? studentId, int? courseId);
+    /// <summary>Записи с фильтрами; teacherId — только записи на курсы этого преподавателя.</summary>
+    Task<IReadOnlyList<Enrollment>> GetFilteredAsync(int? studentId, int? courseId, int? teacherId = null);
 
     /// <summary>Запись вместе со студентом и курсом (только для чтения).</summary>
     Task<Enrollment?> GetWithDetailsAsync(int id);

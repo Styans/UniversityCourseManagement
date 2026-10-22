@@ -55,6 +55,12 @@ public class ReturnResult<T>
     public static ReturnResult<T> Conflict(string errorCode, string errorMessage)
         => Fail(StatusCodes.Status409Conflict, errorCode, errorMessage);
 
+    public static ReturnResult<T> Unauthorized(string errorCode, string errorMessage)
+        => Fail(StatusCodes.Status401Unauthorized, errorCode, errorMessage);
+
+    public static ReturnResult<T> Forbidden(string errorCode, string errorMessage)
+        => Fail(StatusCodes.Status403Forbidden, errorCode, errorMessage);
+
     public static ReturnResult<T> BadRequest(string errorCode, string errorMessage,
         IDictionary<string, string[]>? errors = null)
         => Fail(StatusCodes.Status400BadRequest, errorCode, errorMessage, errors);

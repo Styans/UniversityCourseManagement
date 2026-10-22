@@ -11,7 +11,7 @@ public class EnrollmentRepository : Repository<Enrollment>, IEnrollmentRepositor
     {
     }
 
-    public async Task<IReadOnlyList<Enrollment>> GetFilteredAsync(int? studentId, int? courseId)
+    public async Task<IReadOnlyList<Enrollment>> GetFilteredAsync(int? studentId, int? courseId, int? teacherId = null)
     {
         IQueryable<Enrollment> query = Set.AsNoTracking()
             .Include(e => e.Student)
@@ -22,6 +22,9 @@ public class EnrollmentRepository : Repository<Enrollment>, IEnrollmentRepositor
 
         if (courseId.HasValue)
             query = query.Where(e => e.CourseId == courseId.Value);
+
+        if (teacherId.HasValue)
+            query = query.Where(e => e.Course.TeacherId == teacherId.Value);
 
         return await query.OrderBy(e => e.Id).ToListAsync();
     }

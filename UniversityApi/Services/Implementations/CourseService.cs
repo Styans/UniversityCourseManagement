@@ -1,6 +1,7 @@
 using AutoMapper;
 using UniversityApi.Common;
 using UniversityApi.DTO.Courses;
+using UniversityApi.DTO.Courses.V2;
 using UniversityApi.Models;
 using UniversityApi.Repositories.Interfaces;
 using UniversityApi.Services.Interfaces;
@@ -23,21 +24,56 @@ public class CourseService : ICourseService
         _logger = logger;
     }
 
+    // Чтение курсов для v1 и v2 идёт через общие методы LoadFilteredAsync / LoadByIdAsync:
+    // фильтрация, поиск и «404 если нет» реализованы один раз, версии отличаются только DTO.
+
     public async Task<ReturnResult<IReadOnlyList<CourseDto>>> GetAllAsync(CourseFilterDto filter)
     {
-        var courses = await _courses.GetFilteredAsync(
-            filter.Search, filter.TeacherId, filter.Department, filter.MinCredits, filter.MaxCredits);
-
+        var courses = await LoadFilteredAsync(filter);
         return ReturnResult<IReadOnlyList<CourseDto>>.Success(_mapper.Map<List<CourseDto>>(courses));
     }
 
     public async Task<ReturnResult<CourseDto>> GetByIdAsync(int id)
     {
-        var course = await _courses.GetWithTeacherAsync(id);
+        var course = await LoadByIdAsync(id);
         if (course is null)
-            return CourseNotFound(id);
+            return CourseNotFound<CourseDto>(id);
 
         return ReturnResult<CourseDto>.Success(_mapper.Map<CourseDto>(course));
+    }
+
+    public async Task<ReturnResult<IReadOnlyList<CourseV2Dto>>> GetAllV2Async(CourseFilterDto filter)
+    {
+        var courses = await LoadFilteredAsync(filter);
+        var result = await ToV2Async(courses);
+        return ReturnResult<IReadOnlyList<CourseV2Dto>>.Success(result);
+    }
+
+    public async Task<ReturnResult<CourseV2Dto>> GetByIdV2Async(int id)
+    {
+        var course = await LoadByIdAsync(id);
+        if (course is null)
+            return CourseNotFound<CourseV2Dto>(id);
+
+        var result = await ToV2Async(new[] { course });
+        return ReturnResult<CourseV2Dto>.Success(result[0]);
+    }
+
+    private Task<IReadOnlyList<Course>> LoadFilteredAsync(CourseFilterDto filter)
+        => _courses.GetFilteredAsync(filter.Search, filter.TeacherId, filter.Department, filter.MinCredits, filter.MaxCredits);
+
+    private Task<Course?> LoadByIdAsync(int id) => _courses.GetWithTeacherAsync(id);
+
+    /// <summary>Маппинг в DTO v2 + количество записанных студентов (одним запросом на все курсы).</summary>
+    private async Task<List<CourseV2Dto>> ToV2Async(IReadOnlyList<Course> courses)
+    {
+        var counts = await _courses.GetEnrollmentCountsAsync(courses.Select(c => c.Id).ToList());
+        var result = _mapper.Map<List<CourseV2Dto>>(courses);
+
+        foreach (var dto in result)
+            dto.EnrolledStudentsCount = counts.TryGetValue(dto.Id, out var count) ? count : 0;
+
+        return result;
     }
 
     public async Task<ReturnResult<CourseDto>> CreateAsync(CourseCreateDto dto)
@@ -61,7 +97,7 @@ public class CourseService : ICourseService
     {
         var course = await _courses.GetByIdAsync(id);
         if (course is null)
-            return CourseNotFound(id);
+            return CourseNotFound<CourseDto>(id);
 
         var teacherId = dto.TeacherId!.Value;
         if (!await _teachers.ExistsAsync(teacherId))
@@ -81,7 +117,7 @@ public class CourseService : ICourseService
     {
         var course = await _courses.GetWithTeacherAsync(id);
         if (course is null)
-            return CourseNotFound(id);
+            return CourseNotFound<CourseDto>(id);
 
         var tracked = await _courses.GetByIdAsync(id);
         await _courses.DeleteAsync(tracked!);
@@ -92,10 +128,10 @@ public class CourseService : ICourseService
         return ReturnResult<CourseDto>.Success(_mapper.Map<CourseDto>(course));
     }
 
-    private ReturnResult<CourseDto> CourseNotFound(int id)
+    private ReturnResult<T> CourseNotFound<T>(int id)
     {
         _logger.LogWarning("Course not found: Id={CourseId}", id);
-        return ReturnResult<CourseDto>.NotFound(ErrorCodes.CourseNotFound, $"Course with id {id} not found");
+        return ReturnResult<T>.NotFound(ErrorCodes.CourseNotFound, $"Course with id {id} not found");
     }
 
     private ReturnResult<CourseDto> TeacherNotFound(int teacherId, string action)

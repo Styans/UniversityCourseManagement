@@ -1,4 +1,6 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using UniversityApi.Auth;
 using UniversityApi.Common;
 using UniversityApi.DTO.Students;
 using UniversityApi.Models;
@@ -15,12 +17,17 @@ public class StudentService : IStudentService
 {
     private readonly IStudentRepository _students;
     private readonly IMapper _mapper;
+    private readonly IAuthorizationService _authorization;
+    private readonly ICurrentUser _currentUser;
     private readonly ILogger<StudentService> _logger;
 
-    public StudentService(IStudentRepository students, IMapper mapper, ILogger<StudentService> logger)
+    public StudentService(IStudentRepository students, IMapper mapper, IAuthorizationService authorization,
+        ICurrentUser currentUser, ILogger<StudentService> logger)
     {
         _students = students;
         _mapper = mapper;
+        _authorization = authorization;
+        _currentUser = currentUser;
         _logger = logger;
     }
 
@@ -32,6 +39,11 @@ public class StudentService : IStudentService
 
     public async Task<ReturnResult<StudentDto>> GetByIdAsync(int id)
     {
+        // Проверка принадлежности: Student видит только свой профиль.
+        // Выполняется до поиска, чтобы по 404/403 нельзя было перебором узнать, какие id существуют.
+        if (!await CanReadAsync(id))
+            return AccessDenied<StudentDto>(id);
+
         var student = await _students.GetByIdAsync(id);
         if (student is null)
             return StudentNotFound<StudentDto>(id);
@@ -41,6 +53,10 @@ public class StudentService : IStudentService
 
     public async Task<ReturnResult<StudentDetailsDto>> GetWithCoursesAsync(int id)
     {
+        // Оценки студента — персональные данные: Student не может смотреть чужие
+        if (!await CanReadAsync(id))
+            return AccessDenied<StudentDetailsDto>(id);
+
         var student = await _students.GetWithCoursesAsync(id);
         if (student is null)
             return StudentNotFound<StudentDetailsDto>(id);
@@ -100,6 +116,20 @@ public class StudentService : IStudentService
             student.Id, student.Email);
 
         return ReturnResult<StudentDto>.Success(_mapper.Map<StudentDto>(student));
+    }
+
+    private async Task<bool> CanReadAsync(int studentId)
+    {
+        var result = await _authorization.AuthorizeAsync(
+            _currentUser.Principal, new StudentResource(studentId), ResourceOperations.Read);
+        return result.Succeeded;
+    }
+
+    private ReturnResult<T> AccessDenied<T>(int studentId)
+    {
+        _logger.LogWarning("Access denied: user {UserName} tried to read student {StudentId}",
+            _currentUser.UserName, studentId);
+        return ReturnResult<T>.Forbidden(ErrorCodes.Forbidden, "You can view only your own student profile and grades");
     }
 
     private ReturnResult<T> StudentNotFound<T>(int id)

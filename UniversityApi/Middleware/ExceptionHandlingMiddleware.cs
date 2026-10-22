@@ -39,7 +39,16 @@ public class ExceptionHandlingMiddleware
         var traceId = context.TraceIdentifier;
         ReturnResult<object> result;
 
-        if (exception is DbUpdateException)
+        if (exception is UnauthorizedAccessException)
+        {
+            // Нарушение прав, обнаруженное глубже контроллера, — не 500, а 403 в общем формате
+            _logger.LogWarning("Access denied. TraceId={TraceId}, {Method} {Path}, User={UserName}",
+                traceId, context.Request.Method, context.Request.Path, context.User.Identity?.Name);
+
+            result = ReturnResult<object>.Forbidden(ErrorCodes.Forbidden,
+                "You do not have permission to perform this action");
+        }
+        else if (exception is DbUpdateException)
         {
             // Например, два одновременных запроса прошли проверку и упёрлись в уникальный индекс БД
             _logger.LogError(exception,

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniversityApi.Data.Configurations;
@@ -10,9 +11,11 @@ namespace UniversityApi.Data;
 /// Конфигурация моделей:
 ///  • Conventions — Id как первичный ключ, имена FK, навигационные свойства;
 ///  • Data Annotations — Student, Teacher (атрибуты в классах моделей);
-///  • Fluent API — Course, Enrollment (классы в Data/Configurations).
+///  • Fluent API — Course, Enrollment, ApplicationUser (классы в Data/Configurations).
+/// Наследуется от IdentityDbContext: в той же базе хранятся таблицы ASP.NET Core Identity
+/// (AspNetUsers, AspNetRoles, AspNetUserRoles и др.).
 /// </summary>
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -26,6 +29,7 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Обязательно первым: настраивает таблицы Identity
         base.OnModelCreating(modelBuilder);
 
         Func<string, string> quote = Database.IsNpgsql()
@@ -35,6 +39,7 @@ public class ApplicationDbContext : DbContext
         // Fluent API-конфигурации из папки Data/Configurations
         modelBuilder.ApplyConfiguration(new CourseConfiguration(quote));
         modelBuilder.ApplyConfiguration(new EnrollmentConfiguration(quote));
+        modelBuilder.ApplyConfiguration(new ApplicationUserConfiguration());
     }
 
     /// <summary>
@@ -81,6 +86,9 @@ public class ApplicationDbContext : DbContext
                     break;
                 case Enrollment enrollment when enrollment.EnrollmentDate == default:
                     enrollment.EnrollmentDate = now;
+                    break;
+                case ApplicationUser user when user.CreatedAt == default:
+                    user.CreatedAt = now;
                     break;
             }
         }

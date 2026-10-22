@@ -1,5 +1,5 @@
-using System.Reflection;
-using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
+using UniversityApi.Auth;
 using UniversityApi.Common.Logging;
 using UniversityApi.Extensions;
 using UniversityApi.Middleware;
@@ -21,56 +21,46 @@ builder.Logging.AddFile(
 builder.Services.AddDatabase(builder.Configuration);              // DbContext (Scoped)
 builder.Services.AddApplicationServices(builder.Configuration);   // Repositories, Services (Scoped), AutoMapper
 
+// ---------- Безопасность ----------
+builder.Services.AddAppIdentity();                                // ASP.NET Core Identity (пользователи, роли, хеши паролей)
+builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment); // JWT Bearer
+builder.Services.AddAppAuthorization();                           // роли + политики + проверка по ресурсу
+builder.Services.AddAppCors(builder.Configuration);               // CORS для двух клиентских приложений
+
 builder.Services.AddControllers()
     .ConfigureValidationResponse();                                // 400 VALIDATION_ERROR в формате ReturnResult
 
-// ---------- Swagger / OpenAPI ----------
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "University Course Management API",
-        Version = "v1",
-        Description = "REST Web API для управления студентами, преподавателями, курсами и записями на курсы. " +
-                      "Все ответы возвращаются в едином формате ReturnResult<T>."
-    });
-
-    // XML-комментарии (///) отображаются в Swagger как описания endpoints и примеры значений
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
-        c.IncludeXmlComments(xmlPath);
-
-    // Порядок групп в Swagger: Students → Teachers → Courses → Enrollments → Diagnostics
-    var order = new[] { "Students", "Teachers", "Courses", "Enrollments", "Diagnostics" };
-    c.OrderActionsBy(api =>
-    {
-        var controller = api.ActionDescriptor.RouteValues["controller"] ?? string.Empty;
-        var index = Array.IndexOf(order, controller);
-        return $"{(index < 0 ? 99 : index):D2}_{api.RelativePath}_{api.HttpMethod}";
-    });
-
-    // DateOnly передаётся строкой формата yyyy-MM-dd
-    c.MapType<DateOnly>(() => new OpenApiSchema { Type = "string", Format = "date", Example = new Microsoft.OpenApi.Any.OpenApiString("2004-05-15") });
-});
+builder.Services.AddAppApiVersioning();                           // /api/v1/..., /api/v2/...
+builder.Services.AddAppSwagger();                                 // Swagger: документы v1 и v2 + JWT
 
 var app = builder.Build();
 
 // ---------- HTTP pipeline (порядок важен) ----------
 app.UseMiddleware<ExceptionHandlingMiddleware>(); // первым — чтобы ловить ошибки всех следующих звеньев
-app.UseUnifiedStatusCodePages();                  // 404/405/415 без тела → ReturnResult
+app.UseUnifiedStatusCodePages();                  // 401/403/404/405/415 без тела → ReturnResult
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+app.UseAppSwagger();
+
+app.UseRouting();                                 // 1. выбирается endpoint (контроллер/action)
+app.UseCors(SecurityExtensions.CorsPolicyName);   // 2. CORS — после Routing и до аутентификации (preflight OPTIONS без токена)
+app.UseAuthentication();                          // 3. кто пользователь: проверка JWT → HttpContext.User (claims)
+app.UseAuthorization();                           // 4. что ему можно: [Authorize], роли, политики
+
+app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription().AllowAnonymous();
+// «Закрыто по умолчанию»: все контроллеры требуют аутентификации, если action не помечен [AllowAnonymous].
+// (Не FallbackPolicy: она срабатывала бы и для несуществующих адресов, и вместо 404 был бы 401.)
+app.MapControllers().RequireAuthorization();
+
+// Проверка настроек JWT до старта: в Production без ключа подписи приложение не запустится
+_ = app.Services.GetRequiredService<IOptions<JwtSettings>>().Value;
+
+await app.InitializeDatabaseAsync();              // миграции + тестовые данные + роли и демо-пользователи
+
+if (SecurityExtensions.DevKeyGenerated)
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "University Course Management API v1");
-    c.DocumentTitle = "University Course Management API";
-});
-
-app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
-app.MapControllers();
-
-await app.InitializeDatabaseAsync();              // миграции + тестовые данные
+    app.Logger.LogWarning(
+        "Jwt:Key is not set in User Secrets — a temporary random signing key was generated. " +
+        "Tokens will become invalid after restart. Run scripts/setup-dev-secrets.ps1 to set a permanent key");
+}
 
 app.Run();

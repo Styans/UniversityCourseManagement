@@ -1,0 +1,16 @@
+@model ApiErrorViewModel
+<div class="alert alert-@(Model.Kind is ApiErrorKind.NotFound ? "warn" : "error")" role="alert">
+    <div class="alert-title">@Model.Title</div>
+    <p>@Model.Message</p>
+    @if (Model.ErrorCode is not null || Model.TraceId is not null)
+    {
+        <p class="muted small">
+            @if (Model.ErrorCode is not null) { <span>Код: <code>@Model.ErrorCode</code></span> }
+            @if (Model.TraceId is not null) { <span> · TraceId: <code>@Model.TraceId</code></span> }
+        </p>
+    }
+    @if (Model.Kind is ApiErrorKind.Unavailable or ApiErrorKind.Timeout)
+    {
+        <a class="btn btn-secondary" href="">Повторить</a>
+    }
+</div>

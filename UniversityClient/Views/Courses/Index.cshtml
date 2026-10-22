@@ -1,0 +1,71 @@
+@model CourseListViewModel
+@{
+    ViewData["Title"] = "Курсы";
+}
+<div class="page-head">
+    <div>
+        <h1>Курсы</h1>
+        <p class="muted">Данные из <code>GET /api/@Model.Version/courses</code></p>
+    </div>
+    <partial name="_VersionSwitch" model="@(new VersionSwitchViewModel(Model.Version, "Index", null, Model.Search))" />
+</div>
+
+<form method="get" asp-action="Index" class="search">
+    <input type="hidden" name="version" value="@Model.Version" />
+    <input type="search" name="search" value="@Model.Search" placeholder="Поиск по названию или описанию" aria-label="Поиск" />
+    <button class="btn" type="submit">Найти</button>
+    @if (!string.IsNullOrEmpty(Model.Search))
+    {
+        <a class="btn btn-secondary" asp-action="Index" asp-route-version="@Model.Version">Сбросить</a>
+    }
+</form>
+
+@if (Model.Error is not null)
+{
+    <partial name="_ApiError" model="Model.Error" />
+}
+else if (Model.Courses.Count == 0)
+{
+    <p class="muted">Курсы не найдены.</p>
+}
+else
+{
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Курс</th>
+                    <th class="num">Кредиты</th>
+                    <th>Преподаватель</th>
+                    @if (Model.Version == "v2")
+                    {
+                        <th>Кафедра</th>
+                        <th class="num">Студентов</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.Courses)
+                {
+                    <tr>
+                        <td>
+                            <a class="link-strong" asp-action="Details" asp-route-id="@c.Id" asp-route-version="@Model.Version">@c.Name</a>
+                            @if (!string.IsNullOrEmpty(c.Description))
+                            {
+                                <div class="muted small">@c.Description</div>
+                            }
+                        </td>
+                        <td class="num">@c.Credits</td>
+                        <td>@c.TeacherName</td>
+                        @if (Model.Version == "v2")
+                        {
+                            <td>@c.Department</td>
+                            <td class="num">@c.EnrolledStudentsCount</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="muted small">Всего: @Model.Courses.Count</p>
+}

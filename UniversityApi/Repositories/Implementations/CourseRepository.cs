@@ -47,4 +47,16 @@ public class CourseRepository : Repository<Course>, ICourseRepository
         => await Set.AsNoTracking()
             .Include(c => c.Teacher)
             .FirstOrDefaultAsync(c => c.Id == id);
+
+    public async Task<IReadOnlyDictionary<int, int>> GetEnrollmentCountsAsync(IReadOnlyCollection<int> courseIds)
+    {
+        if (courseIds.Count == 0)
+            return new Dictionary<int, int>();
+
+        return await Db.Enrollments.AsNoTracking()
+            .Where(e => courseIds.Contains(e.CourseId))
+            .GroupBy(e => e.CourseId)
+            .Select(g => new { CourseId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.CourseId, x => x.Count);
+    }
 }

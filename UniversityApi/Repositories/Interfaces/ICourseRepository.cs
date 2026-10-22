@@ -10,4 +10,7 @@ public interface ICourseRepository : IRepository<Course>
 
     /// <summary>Курс вместе с преподавателем (только для чтения).</summary>
     Task<Course?> GetWithTeacherAsync(int id);
+
+    /// <summary>Количество записанных студентов по каждому курсу (один GROUP BY-запрос).</summary>
+    Task<IReadOnlyDictionary<int, int>> GetEnrollmentCountsAsync(IReadOnlyCollection<int> courseIds);
 }

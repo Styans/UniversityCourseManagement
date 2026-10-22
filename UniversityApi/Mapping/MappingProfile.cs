@@ -1,5 +1,6 @@
 using AutoMapper;
 using UniversityApi.DTO.Courses;
+using UniversityApi.DTO.Courses.V2;
 using UniversityApi.DTO.Enrollments;
 using UniversityApi.DTO.Students;
 using UniversityApi.DTO.Teachers;
@@ -71,6 +72,13 @@ public class MappingProfile : Profile
         CreateMap<Course, CourseDto>()
             .ForMember(d => d.TeacherFullName,
                 o => o.MapFrom(s => s.Teacher.FirstName + " " + s.Teacher.LastName));
+
+        // v2: преподаватель — вложенный объект; количество студентов заполняет CourseService
+        CreateMap<Course, CourseV2Dto>()
+            .ForMember(d => d.EnrolledStudentsCount, o => o.Ignore());
+
+        CreateMap<Teacher, CourseTeacherV2Dto>()
+            .ForMember(d => d.FullName, o => o.MapFrom(s => s.FirstName + " " + s.LastName));
 
         CreateMap<CourseCreateDto, Course>()
             .ForMember(d => d.Id, o => o.Ignore())

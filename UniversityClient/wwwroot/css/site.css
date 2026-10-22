@@ -1,0 +1,86 @@
+:root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --text: #1d2330;
+    --muted: #667085;
+    --border: #e4e7ec;
+    --accent: #2f5bd3;
+    --accent-ink: #ffffff;
+    --error-bg: #fdecec;
+    --error-border: #f3b4b4;
+    --warn-bg: #fff6e0;
+    --warn-border: #f1d28a;
+    --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { font-family: Consolas, "Cascadia Mono", monospace; font-size: .9em; background: #eef1f6; padding: 1px 5px; border-radius: 4px; }
+
+.container { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); }
+.topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; min-height: 60px; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text); }
+.brand:hover { text-decoration: none; }
+.brand-mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.nav { display: flex; gap: 6px 18px; flex-wrap: wrap; }
+.nav a { color: var(--muted); }
+.nav a:hover { color: var(--text); text-decoration: none; }
+
+main { padding: 28px 20px 12px; }
+h1 { margin: 0 0 4px; font-size: 26px; }
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.muted { color: var(--muted); margin: 0; }
+.small { font-size: 13px; }
+.lead { font-size: 17px; margin-top: 0; }
+
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.segmented a { padding: 7px 14px; color: var(--muted); }
+.segmented a + a { border-left: 1px solid var(--border); }
+.segmented a.active { background: var(--accent); color: var(--accent-ink); }
+.segmented a:hover { text-decoration: none; }
+
+.search { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.search input { flex: 1 1 260px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font: inherit; background: var(--surface); }
+
+.btn { display: inline-block; padding: 9px 16px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: var(--accent-ink); font: inherit; cursor: pointer; }
+.btn:hover { text-decoration: none; filter: brightness(1.05); }
+.btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.table th { font-size: 13px; color: var(--muted); font-weight: 600; background: #fafbfc; }
+.table tr:last-child td { border-bottom: 0; }
+.num { text-align: right !important; white-space: nowrap; }
+.link-strong { font-weight: 600; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 22px; margin: 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+
+.alert { border: 1px solid; border-radius: var(--radius); padding: 14px 18px; margin-bottom: 18px; }
+.alert p { margin: 6px 0; }
+.alert-title { font-weight: 600; }
+.alert-error { background: var(--error-bg); border-color: var(--error-border); }
+.alert-warn { background: var(--warn-bg); border-color: var(--warn-border); }
+
+.output { background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; white-space: pre-wrap; min-height: 60px; margin: 14px 0 0; font-size: 13px; }
+
+.footer { color: var(--muted); font-size: 13px; padding: 24px 20px 36px; }
+
+@media (max-width: 600px) {
+    main { padding-top: 20px; }
+    h1 { font-size: 22px; }
+}

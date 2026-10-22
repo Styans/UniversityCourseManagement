@@ -1,0 +1,37 @@
+@using Microsoft.Extensions.Options
+@using UniversityClient.Services
+@inject IOptions<UniversityApiOptions> ApiOptions
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — University Client</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a class="brand" asp-controller="Courses" asp-action="Index">
+                <span class="brand-mark">U</span>
+                <span>University Client</span>
+            </a>
+            <nav class="nav">
+                <a asp-controller="Courses" asp-action="Index">Курсы</a>
+                <a asp-controller="Home" asp-action="Cors">CORS-демо</a>
+                <a href="@(ApiOptions.Value.BaseUri)swagger" target="_blank" rel="noopener">Swagger API ↗</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        @RenderBody()
+    </main>
+
+    <footer class="container footer">
+        Клиент получает данные только по HTTP через IHttpClientFactory. API: <code>@ApiOptions.Value.BaseUri</code>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

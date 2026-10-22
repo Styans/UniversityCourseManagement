@@ -1,12 +1,18 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UniversityApi.Auth;
 using UniversityApi.Common;
 using UniversityApi.DTO.Teachers;
 using UniversityApi.Services.Interfaces;
 
 namespace UniversityApi.Controllers;
 
-/// <summary>Преподаватели: CRUD.</summary>
+/// <summary>
+/// Преподаватели: CRUD. Список и карточка преподавателя открыты (как справочник кафедры),
+/// создание, изменение и удаление — только Admin.
+/// </summary>
 [Route("api/teachers")]
+[Authorize(Policy = AppPolicies.AdminOnly)]
 public class TeachersController : ApiControllerBase
 {
     private readonly ITeacherService _service;
@@ -19,12 +25,14 @@ public class TeachersController : ApiControllerBase
     /// <summary>Получить всех преподавателей.</summary>
     /// <param name="department">Необязательный фильтр по кафедре.</param>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(ReturnResult<IReadOnlyList<TeacherDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] string? department)
         => ToActionResult(await _service.GetAllAsync(department));
 
     /// <summary>Получить преподавателя по ID.</summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(ReturnResult<TeacherDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ReturnResult<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id)

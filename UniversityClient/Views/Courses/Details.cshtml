@@ -1,0 +1,42 @@
+@model CourseDetailsViewModel
+@{
+    ViewData["Title"] = Model.Course?.Name ?? $"Курс {Model.Id}";
+}
+<p><a asp-action="Index" asp-route-version="@Model.Version">← Все курсы</a></p>
+
+<div class="page-head">
+    <div>
+        <h1>@(Model.Course?.Name ?? $"Курс #{Model.Id}")</h1>
+        <p class="muted">Данные из <code>GET /api/@Model.Version/courses/@Model.Id</code></p>
+    </div>
+    <partial name="_VersionSwitch" model="@(new VersionSwitchViewModel(Model.Version, "Details", Model.Id, null))" />
+</div>
+
+@if (Model.Error is not null)
+{
+    <partial name="_ApiError" model="Model.Error" />
+}
+else if (Model.Course is { } c)
+{
+    <div class="card">
+        @if (!string.IsNullOrEmpty(c.Description))
+        {
+            <p class="lead">@c.Description</p>
+        }
+        <dl class="facts">
+            <dt>ID</dt><dd>@c.Id</dd>
+            <dt>Кредиты</dt><dd>@c.Credits</dd>
+            <dt>Преподаватель</dt><dd>@c.TeacherName</dd>
+            @if (Model.Version == "v2")
+            {
+                <dt>Кафедра</dt><dd>@c.Department</dd>
+                <dt>Записано студентов</dt><dd>@c.EnrolledStudentsCount</dd>
+            }
+            <dt>Создан</dt><dd>@c.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</dd>
+        </dl>
+        @if (Model.Version == "v1")
+        {
+            <p class="muted small">В v1 нет кафедры и количества студентов — переключитесь на API v2.</p>
+        }
+    </div>
+}
